@@ -15,6 +15,9 @@ pub enum TransformError {
     #[error("invalid score: {0}")]
     InvalidScore(String),
 
+    #[error("invalid number: '{0}'")]
+    InvalidNumber(String),
+
     #[error("missing required field: {0}")]
     MissingField(String),
 
