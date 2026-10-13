@@ -369,6 +369,13 @@ mod tests {
         assert_eq!(parse_optional_u32("").unwrap(), None);
     }
 
+    #[test]
+    fn test_parse_date_length_gap(){
+        assert!(parse_date("2024").is_err());
+
+    }
+
+
     
 
 }
