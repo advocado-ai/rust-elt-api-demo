@@ -3,6 +3,32 @@
 # Local environment — never commit
 .env
 .env.*
+# ...except the placeholder template that documents which variables exist
+!.env.example
+
+# Keys, certificates, credential files and local databases — never commit
+# (extensions and exact names only, so source files like credentials.rs are unaffected)
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa*
+id_ed25519*
+.netrc
+credentials.json
+credentials.toml
+secrets.json
+secrets.toml
+secrets.yaml
+secrets.yml
+*.sqlite
+*.sqlite3
+*.db
+*.log
+
+# Local, machine-specific tool state
+.claude/settings.local.json
+.warp/
 
 # Raw data files — download with the curl command in _docs/data-sources/architecture.md
 _data/*.csv
