@@ -61,7 +61,7 @@ pub struct Set {
 // Every field is String or Option<String> — no coercion, exactly as it
 // arrives from the CSV. serde(default) fills in None for missing JSON keys.
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Default, Deserialize)]
 #[serde(default)]
 pub struct RawMatch {
     pub tourney_id: String,
@@ -96,45 +96,6 @@ pub struct RawMatch {
     pub winner_rank_points: String,
     pub loser_rank_points: String,    
 }
-
-impl Default for RawMatch {
-    fn default() -> Self {
-        Self {
-            tourney_id: String::new(),
-            tourney_name: String::new(),
-            surface:String::new(),
-            draw_size:String::new(),
-            tourney_level: String::new(),
-            tourney_date: String::new(),
-            match_num: String::new(),
-            winner_id: String::new(),
-            winner_seed: String::new(),
-            winner_name: String::new(),
-            winner_hand: String::new(),
-            winner_ht: String::new(),
-            winner_ioc: String::new(),
-            winner_age: String::new(),
-            loser_id: String::new(),
-            loser_seed: String::new(),
-            loser_name: String::new(),
-            loser_hand: String::new(),
-            loser_ht: String::new(),
-            loser_ioc: String::new(),
-            loser_age: String::new(),
-            score: String::new(),
-            best_of: String::new(),
-            round: String::new(),
-            minutes: String::new(),
-            w_ace: String::new(),
-            l_ace: String::new(),
-            winner_rank: String::new(),
-            loser_rank: String::new(),
-            winner_rank_points: String::new(),
-            loser_rank_points: String::new(),
-        }
-    }
-}
-
 
 // ── Normalized target record ──────────────────────────────────────────────────
 #[derive(Debug, Clone, Serialize, Deserialize)]

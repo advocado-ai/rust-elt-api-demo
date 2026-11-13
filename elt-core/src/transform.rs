@@ -1,6 +1,9 @@
+// TEMP (until task T2 lands): the parsers are only called from tests while transform() is a stub.
+#![allow(dead_code)]
+
 use crate::error::TransformError;
 use crate::types::{
-    MatchOutcome, MatchRecord, RawMatch, Round, Set, Surface, TourneyLevel, ImportStatus,
+    MatchOutcome, MatchRecord, RawMatch, Round, Set, Surface, TourneyLevel,
 };
 
 // ── Public entry point ────────────────────────────────────────────────────────
@@ -230,7 +233,6 @@ For the implementation, look at `str::parse::<u32>()`, which returns a `Result`.
 // ""        -> Ok(None)       blank, which is normal
 // "14"      -> Ok(Some(14))
 // "abc"     -> Err(...)       genuinely corrupt, so reject the record
-
 fn parse_optional_u32(s: &str) -> Result<Option<u32>, TransformError> {
 
     //s is empty ""

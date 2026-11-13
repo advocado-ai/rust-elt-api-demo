@@ -1,6 +1,4 @@
 use std::collections::HashMap;
-use std::hash::Hash;
-use std::vec;
 
 use crate::error::RepositoryError;
 use crate::types::MatchRecord;
@@ -15,6 +13,7 @@ pub trait MatchRepository {
 }
 
 // ── In-memory implementation ─────────────────────────────────────────────────
+#[derive(Default)]
 pub struct InMemoryMatchRepository {
     records: HashMap<String, MatchRecord>,
 }
@@ -34,20 +33,16 @@ impl MatchRepository for InMemoryMatchRepository {
     }
 
     fn get(&self, id: &str) -> Result<&MatchRecord, RepositoryError> {
-        let m_record = match self.records.get(id){
+        match self.records.get(id) {
             Some(matchrecord) => Ok(matchrecord),
             None => Err(RepositoryError::NotFound(format!("no matchrecord for id: {id}"))),
-        };
-
-        m_record
-
-        
+        }
     }
 
     fn list(&self) -> Vec<&MatchRecord> {
         let mut vec_of_m_records = Vec::<&MatchRecord>::new();
 
-        for (_,v) in &self.records{
+        for v in self.records.values() {
             vec_of_m_records.push(v);
         }
 
