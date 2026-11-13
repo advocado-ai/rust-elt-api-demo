@@ -4,65 +4,18 @@ use crate::types::{
 };
 
 // ── Public entry point ────────────────────────────────────────────────────────
-pub fn transform(raw: RawMatch) -> Result<MatchRecord, TransformError>{
-    //1. {tourney_id}_{match_num}"
-    let tourney_id = &raw.tourney_id;
-    let match_num = &raw.match_num;
-    let id = format!("{tourney_id}_{match_num}");
-
-    /* 
-    let surface = match parse_surface(&raw.surface){
-        Ok(s) => s,
-        Err(e) => 
-    }
-    */
-    let surface = parse_surface(&raw.surface)?;
-
-    let tourneylevel = parse_tourney_level(&raw.tourney_level)?;
-
-    //parse_round()
-
-    //parse_date()
-
-    //parse_score()
-    let score = parse_score(&raw.score)?;
-
-    let (sets, match_outcome) = score;
-    
-    let round = parse_round(&raw.round)?;
-
-
-
-
-
-    //parse_optional_u32()
-    let m_record = MatchRecord{
-        id: id,
-        tourney_id: tourney_id.to_string(),
-        tourney_name: raw.tourney_name.to_string(),
-        surface: surface,
-        tourney_level: tourneylevel,
-        winner_name: raw.winner_name,
-        loser_name: raw.loser_name,
-        score_raw: raw.score,
-        sets: sets,
-        outcome: match_outcome,
-        round: round,
-
-
-
-
-    };
-
-
-    //2. for each field in MatchRecord, if field exists in RawMatch, extract.  Note any fields in MatchRecord that don't have corresponding field in RawMatch.  
-
-    //2a. use the parsing helper functions to parse the RawMatch into formats we want in MatchRecord
-
-    //3. If successful, wrap the matchRecord in Result and return else return Err(TransformError)
-
-
-    
+/// Converts one raw CSV-shaped row into a normalised `MatchRecord`.
+///
+/// STUB (T2): not implemented yet; the agent task `transform` fills this in.
+/// The first hand-written draft is in git history (commit 103f900). Intended
+/// behaviour, taken from that draft's notes:
+/// - `id` is `{tourney_id}_{match_num}`
+/// - every `MatchRecord` field is parsed from its `RawMatch` field with the
+///   helpers below, and any parse failure is returned as a `TransformError`
+pub fn transform(_raw: RawMatch) -> Result<MatchRecord, TransformError> {
+    Err(TransformError::MissingField(
+        "transform is not implemented yet (task T2)".to_string(),
+    ))
 }
 
 // ── Parsers ───────────────────────────────────────────────────────────────────
