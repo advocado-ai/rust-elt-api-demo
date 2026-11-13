@@ -20,7 +20,6 @@ pub enum TransformError {
 
     #[error("missing required field: {0}")]
     MissingField(String),
-
 }
 
 #[derive(Debug, thiserror::Error)]
@@ -28,4 +27,3 @@ pub enum RepositoryError {
     #[error("record not found: {0}")]
     NotFound(String),
 }
-

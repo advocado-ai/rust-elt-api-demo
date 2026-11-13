@@ -35,7 +35,9 @@ impl MatchRepository for InMemoryMatchRepository {
     fn get(&self, id: &str) -> Result<&MatchRecord, RepositoryError> {
         match self.records.get(id) {
             Some(matchrecord) => Ok(matchrecord),
-            None => Err(RepositoryError::NotFound(format!("no matchrecord for id: {id}"))),
+            None => Err(RepositoryError::NotFound(format!(
+                "no matchrecord for id: {id}"
+            ))),
         }
     }
 
@@ -47,7 +49,6 @@ impl MatchRepository for InMemoryMatchRepository {
         }
 
         vec_of_m_records
-
     }
 
     fn count(&self) -> usize {
@@ -73,8 +74,16 @@ mod tests {
             loser_name: "Rune H.".to_string(),
             score_raw: "7-6(5) 6-4".to_string(),
             sets: vec![
-                Set { winner_games: 7, loser_games: 6, tiebreak: Some(5)},
-                Set { winner_games: 6, loser_games: 4, tiebreak: None},
+                Set {
+                    winner_games: 7,
+                    loser_games: 6,
+                    tiebreak: Some(5),
+                },
+                Set {
+                    winner_games: 6,
+                    loser_games: 4,
+                    tiebreak: None,
+                },
             ],
             outcome: MatchOutcome::Completed,
             round: Round::Final,
@@ -115,10 +124,4 @@ mod tests {
         repo.save(sample_record("b")).unwrap();
         assert_eq!(repo.list().len(), 2);
     }
-
-
-
-
-
-
 }

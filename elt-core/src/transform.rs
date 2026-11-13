@@ -2,9 +2,7 @@
 #![allow(dead_code)]
 
 use crate::error::TransformError;
-use crate::types::{
-    MatchOutcome, MatchRecord, RawMatch, Round, Set, Surface, TourneyLevel,
-};
+use crate::types::{MatchOutcome, MatchRecord, RawMatch, Round, Set, Surface, TourneyLevel};
 
 // ── Public entry point ────────────────────────────────────────────────────────
 /// Converts one raw CSV-shaped row into a normalised `MatchRecord`.
@@ -23,34 +21,41 @@ pub fn transform(_raw: RawMatch) -> Result<MatchRecord, TransformError> {
 
 // ── Parsers ───────────────────────────────────────────────────────────────────
 fn parse_surface(s: &str) -> Result<Surface, TransformError> {
-    let surface = match s{
+    let surface = match s {
         "Hard" => Surface::Hard,
         "Clay" => Surface::Clay,
         "Grass" => Surface::Grass,
         "Carpet" => Surface::Carpet,
-        _ => return Err(TransformError::UnknownSurface(format!("{s} is an invalid surface"))),
+        _ => {
+            return Err(TransformError::UnknownSurface(format!(
+                "{s} is an invalid surface"
+            )));
+        }
     };
 
     Ok(surface)
-    
 }
 
 fn parse_tourney_level(s: &str) -> Result<TourneyLevel, TransformError> {
-    let tourneylevel = match s{
+    let tourneylevel = match s {
         "G" => TourneyLevel::Grandslam,
         "M" => TourneyLevel::Masters,
         "A" => TourneyLevel::Tour,
         "F" => TourneyLevel::Finals,
         "O" => TourneyLevel::Olympics,
         "D" => TourneyLevel::DavisCup,
-        _ => return Err(TransformError::UnknownTourneyLevel(format!("{s} is an unknown tourney level"))), 
+        _ => {
+            return Err(TransformError::UnknownTourneyLevel(format!(
+                "{s} is an unknown tourney level"
+            )));
+        }
     };
 
     Ok(tourneylevel)
 }
 
 fn parse_round(s: &str) -> Result<Round, TransformError> {
-    let round = match s{
+    let round = match s {
         "R128" => Round::R128,
         "R64" => Round::R64,
         "R32" => Round::R32,
@@ -60,9 +65,13 @@ fn parse_round(s: &str) -> Result<Round, TransformError> {
         "F" => Round::Final,
         "RR" => Round::RoundRobin,
         "BR" => Round::Bronze,
-        _ => return Err(TransformError::UnknownRound(format!("{s} is an unknown round in the tournament, ex. R128, R16, Quarterfinal."))),
+        _ => {
+            return Err(TransformError::UnknownRound(format!(
+                "{s} is an unknown round in the tournament, ex. R128, R16, Quarterfinal."
+            )));
+        }
     };
-    
+
     Ok(round)
 }
 
@@ -70,7 +79,7 @@ fn parse_round(s: &str) -> Result<Round, TransformError> {
 /// Returns TransformError::InvalidDate if the string isn't 8 ASCII digits.
 fn parse_date(s: &str) -> Result<String, TransformError> {
     /*
-    Why the check matters: you'll build "2024-01-01" by slicing byte offsets (&s[0..4], &s[4..6], &s[6..8]). Slicing a str at a non-character boundary panics. If you validate "length 8 and all ASCII digits" first, every byte offset is a character boundary, so the slices can't panic. Note that s.len() counts bytes, not chars. The two agree only because you've proven the string is all ASCII digits. 
+    Why the check matters: you'll build "2024-01-01" by slicing byte offsets (&s[0..4], &s[4..6], &s[6..8]). Slicing a str at a non-character boundary panics. If you validate "length 8 and all ASCII digits" first, every byte offset is a character boundary, so the slices can't panic. Note that s.len() counts bytes, not chars. The two agree only because you've proven the string is all ASCII digits.
     */
 
     /*
@@ -81,8 +90,10 @@ fn parse_date(s: &str) -> Result<String, TransformError> {
     }
     */
 
-    if !s.chars().all(|c| c.is_ascii_digit()){
-        return Err(TransformError::InvalidDate(format!("Invalid date parsing error: {s}")));
+    if !s.chars().all(|c| c.is_ascii_digit()) {
+        return Err(TransformError::InvalidDate(format!(
+            "Invalid date parsing error: {s}"
+        )));
     }
 
     //build the date
@@ -93,22 +104,19 @@ fn parse_date(s: &str) -> Result<String, TransformError> {
     let date = format!("{year}-{month}-{day}");
 
     Ok(date)
-    
 }
 
-
-//build date ex. "2024-01-01" by slicing byte offsets 
-
+//build date ex. "2024-01-01" by slicing byte offsets
 
 /// Parse score string into (sets, outcome).
-/// Handles: 
-/// "6-3 7-6(4) 6-4", 3 parts 
+/// Handles:
+/// "6-3 7-6(4) 6-4", 3 parts
 /// "W/O", 1
-/// "6-4 3-0 RET", 3 
+/// "6-4 3-0 RET", 3
 /// "6-3 RET" 2
 /// "6-3 2-6 3-1 RET"
 /// "6-4 6-7(6) 2-0 RET" 4
-/* 
+/*
 The key insight: every score string is just space-separated tokens, and each token is one of three things:
 
 A set: "6-3"
@@ -137,67 +145,64 @@ pub fn parse_score(s: &str) -> Result<(Vec<Set>, MatchOutcome), TransformError> 
     //default if completed
     let mut match_outcome = MatchOutcome::Completed;
 
-
     let mut tokens: Vec<&str> = s.split_whitespace().collect();
 
-    if tokens[0] == keyword_walkover{
+    if tokens[0] == keyword_walkover {
         return Ok((vec![], MatchOutcome::Walkover));
     }
 
-    let last_token = tokens[tokens.len()-1];
+    let last_token = tokens[tokens.len() - 1];
 
     if last_token == keyword_retired {
         match_outcome = MatchOutcome::Retirement;
-        tokens.truncate(tokens.len() -1);
+        tokens.truncate(tokens.len() - 1);
     }
 
-    
-    for t in tokens{
+    for t in tokens {
         sets_vec.push(parse_set_token(t)?);
     }
-    
-    /* 
+
+    /*
     //idiomatic Rust, no need to collect errors since we propagate errors
-    let sets_vec: Vec<Result<Set, TransformError>> = tokens.iter().map(|t| parse_set_token(t)).collect()::<Result<Vec<Set>, _>>()?; 
+    let sets_vec: Vec<Result<Set, TransformError>> = tokens.iter().map(|t| parse_set_token(t)).collect()::<Result<Vec<Set>, _>>()?;
     */
 
     Ok((sets_vec, match_outcome))
-    
-
 }
 
 //now parse set scores, count num chars, no-tiebreak would have 3 chars, any tiebreak score would have "()" and 6 chars. Winner's number of games per set always leads, losers comes after the "-". in a set with tiebreak that winner lost like 6-7(3) stil the same, winner games = 6, loser games = 7 and tibreak: Option(3)
-fn parse_set_token(s: &str) -> Result<Set, TransformError>{
+fn parse_set_token(s: &str) -> Result<Set, TransformError> {
     let mut winner_games: u8 = 0;
-    let mut loser_games:u8 = 0;
+    let mut loser_games: u8 = 0;
     let mut tiebreak: Option<u8> = None;
-    
+
     let char_indices: Vec<char> = s.chars().collect();
-    
+
     //if len is 3 no tiebreak
-    if char_indices.len() > 3{
+    if char_indices.len() > 3 {
         //check if tiebreak went more than std 7 pts
-        if char_indices[5] == ')'{
+        if char_indices[5] == ')' {
             tiebreak = Some(char_indices[4].to_digit(10).unwrap() as u8);
-        }else{
+        } else {
             //grab 2 digits at idx 4,5
             let mut tiebreak_score_str = "".to_string();
             tiebreak_score_str.push(char_indices[4]);
             tiebreak_score_str.push(char_indices[5]);
             tiebreak = Some(tiebreak_score_str.parse::<u8>().unwrap());
-        }        
+        }
     }
 
     winner_games = char_indices[0].to_digit(10).unwrap() as u8;
 
     loser_games = char_indices[2].to_digit(10).unwrap() as u8;
 
-    let set = Set{
-        winner_games, loser_games, tiebreak,
+    let set = Set {
+        winner_games,
+        loser_games,
+        tiebreak,
     };
 
     Ok(set)
-
 }
 
 /*
@@ -225,7 +230,7 @@ winner_seed: parse_optional_u32(&raw.winner_seed),
 ```
 
 For the implementation, look at `str::parse::<u32>()`, which returns a `Result`. Then look at how to turn a `Result<T, E>` into an `Option<T>` (`.ok()`). The empty-string case may already be covered, because `"".parse::<u32>()` is an `Err`.
- 
+
 */
 
 /// "" or non-numeric → None; otherwise parse to u32.
@@ -234,15 +239,18 @@ For the implementation, look at `str::parse::<u32>()`, which returns a `Result`.
 // "14"      -> Ok(Some(14))
 // "abc"     -> Err(...)       genuinely corrupt, so reject the record
 fn parse_optional_u32(s: &str) -> Result<Option<u32>, TransformError> {
-
     //s is empty ""
-    if s.is_empty(){
-        return Ok(None)
+    if s.is_empty() {
+        return Ok(None);
     }
 
-    let number = match s.parse::<u32>(){
+    let number = match s.parse::<u32>() {
         Ok(num) => num,
-        Err(e) => return Err(TransformError::InvalidNumber(format!("Error parsing option u32: {s}, {e}"))),
+        Err(e) => {
+            return Err(TransformError::InvalidNumber(format!(
+                "Error parsing option u32: {s}, {e}"
+            )));
+        }
     };
 
     Ok(Some(number))
@@ -300,7 +308,7 @@ mod tests {
 
     #[test]
     fn score_with_tiebreak() {
-        let (sets,outcome) = parse_score("7-6(4) 6-3").unwrap();
+        let (sets, outcome) = parse_score("7-6(4) 6-3").unwrap();
         assert_eq!(outcome, MatchOutcome::Completed);
         assert_eq!(sets[0].tiebreak, Some(4));
     }
@@ -325,12 +333,7 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_date_length_gap(){
+    fn test_parse_date_length_gap() {
         assert!(parse_date("2024").is_err());
-
     }
-
-
-    
-
 }

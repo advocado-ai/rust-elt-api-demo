@@ -53,7 +53,7 @@ pub enum ImportStatus {
 pub struct Set {
     pub winner_games: u8,
     pub loser_games: u8,
-    pub tiebreak: Option<u8>
+    pub tiebreak: Option<u8>,
 }
 
 // ── Source document (raw CSV row from Supabase raw.matches.data) ─────────────
@@ -94,14 +94,14 @@ pub struct RawMatch {
     pub winner_rank: String,
     pub loser_rank: String,
     pub winner_rank_points: String,
-    pub loser_rank_points: String,    
+    pub loser_rank_points: String,
 }
 
 // ── Normalized target record ──────────────────────────────────────────────────
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MatchRecord {
     pub id: String,
-    pub tourney_id: String, //from RawMatch
+    pub tourney_id: String,   //from RawMatch
     pub tourney_name: String, //from RawMatch
     pub surface: Surface,
     pub tourney_level: TourneyLevel,
@@ -120,5 +120,4 @@ pub struct MatchRecord {
     pub winner_rank: Option<u32>,
     pub loser_rank: Option<u32>,
     pub import_status: ImportStatus,
-
 }
