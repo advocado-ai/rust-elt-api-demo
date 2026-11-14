@@ -30,7 +30,7 @@ secrets.yml
 .claude/settings.local.json
 .warp/
 
-# Raw data files — download with the curl command in _docs/data-sources/architecture.md
+# Raw data files are not committed; download them into _data/ yourself (see the README)
 _data/*.csv
 _data/*.json
 # Keep fixtures (small, hand-picked rows committed for offline unit tests)
