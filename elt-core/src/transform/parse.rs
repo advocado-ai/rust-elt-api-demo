@@ -72,7 +72,7 @@ pub(super) fn parse_date(s: &str) -> Result<String, TransformError> {
     }
     */
 
-    if !s.chars().all(|c| c.is_ascii_digit()) {
+    if s.len() != 8 || !s.chars().all(|c| c.is_ascii_digit()) {
         return Err(TransformError::InvalidDate(format!(
             "Invalid date parsing error: {s}"
         )));
@@ -114,7 +114,6 @@ Each token that isn't a keyword follows the same pattern: X-Y or X-Y(Z). You par
 
 That covers every variation you listed without enumerating them. The only real branching is: W/O → RET → normal. Three cases, not combinatorial.
 */
-
 pub(super) fn parse_score(s: &str) -> Result<(Vec<Set>, MatchOutcome), TransformError> {
     //make a struct Set for each set and put in Vec<Set>
     //MatchOutcome: Completed, Retirement, Walkover
@@ -154,8 +153,6 @@ pub(super) fn parse_score(s: &str) -> Result<(Vec<Set>, MatchOutcome), Transform
 
 //now parse set scores, count num chars, no-tiebreak would have 3 chars, any tiebreak score would have "()" and 6 chars. Winner's number of games per set always leads, losers comes after the "-". in a set with tiebreak that winner lost like 6-7(3) stil the same, winner games = 6, loser games = 7 and tibreak: Option(3)
 pub(super) fn parse_set_token(s: &str) -> Result<Set, TransformError> {
-    let mut winner_games: u8 = 0;
-    let mut loser_games: u8 = 0;
     let mut tiebreak: Option<u8> = None;
 
     let char_indices: Vec<char> = s.chars().collect();
@@ -174,9 +171,9 @@ pub(super) fn parse_set_token(s: &str) -> Result<Set, TransformError> {
         }
     }
 
-    winner_games = char_indices[0].to_digit(10).unwrap() as u8;
+    let winner_games = char_indices[0].to_digit(10).unwrap() as u8;
 
-    loser_games = char_indices[2].to_digit(10).unwrap() as u8;
+    let loser_games = char_indices[2].to_digit(10).unwrap() as u8;
 
     let set = Set {
         winner_games,
